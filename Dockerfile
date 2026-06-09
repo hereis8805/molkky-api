@@ -2,14 +2,15 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 
-# 네이티브 모듈 빌드 도구 설치
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm run build
+
+# tsc 직접 호출 + 빌드 결과 확인
+RUN npx tsc -p tsconfig.build.json && ls -la dist/ && test -f dist/main.js
 
 # ── 2단계: 실행 ──────────────────────────────────────
 FROM node:20-slim AS runner
